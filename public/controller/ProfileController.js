@@ -1,11 +1,13 @@
-import { ProfileModel } from '../model/ProfileModel.js';
+import { ProfileModel } from "../model/ProfileModel.js";
+
 export class ProfileController {
-    // instance members
+    //instance members
     model = null;
     view = null;
 
-    constructor() {
-        this.model = new ProfileModel();
+    constructor(){
+
+        this.model = new ProfileModel()
     }
 
     setView(view) {

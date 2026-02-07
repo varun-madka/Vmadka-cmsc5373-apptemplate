@@ -1,6 +1,5 @@
 import { AbstractView } from "./AbstractView.js";
 import { currentUser } from "../controller/firebase_auth.js";
-
 export class ProfileView extends AbstractView {
     // instance variables
     controller = null;
@@ -10,35 +9,34 @@ export class ProfileView extends AbstractView {
     }
 
     async onMount() {
-        if (!currentUser) {
-            this.parentElement.innerHTML = '<h1>Access denied.</h1>';
-            return;
+        if(!currentUser){
+            this.parentElement.innerHTML = '<h1>Access denied</h1>'
+            return
         }
-        console.log('HomeView.onMount() called');
+        console.log('ProfileView.onMount() called');
     }
 
     async updateView() {
         console.log('ProfileView.updateView() called');
         const viewWrapper = document.createElement('div');
-        viewWrapper.innerHTML = `<h2>Profile</h2>
-        <p>Welcome to your profile page.</p>
-        <p>Email: ${currentUser.email}</p>
-        <p>User UID: ${currentUser.uid}</p>
-        `;
+        viewWrapper.innerHTML = `
+            <h1>Profile</h1>
+            <p>Welcome to your profile page.</p>
+            <p>Email: ${currentUser.email}</p>
+            <p>User UID: ${currentUser.uid}</p>`
 
         return viewWrapper;
-        
     }
-        
+
     attachEvents() {
         console.log('ProfileView.attachEvents() called');
     }
 
     async onLeave() {
-        if (!currentUser) {
-            this.parentElement.innerHTML = '<h1>Access denied.</h1>';
-            return;
+        if(!currentUser){
+            this.parentElement.innerHTML = '<h1>Access denied</h1>'
+            return
         }
         console.log('ProfileView.onLeave() called');
-     }
+    }
 }

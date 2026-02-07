@@ -1,26 +1,76 @@
-import { HomeModel } from "../model/HomeModel.js";
+import { HomeModel, GameState, marking, GamePlayStrategy } from "../model/HomeModel.js";
+import { startSpinner, stopSpinner } from "../view/util.js";
 
-export const glHomeModel = new HomeModel();
+export const glHomeModel = new HomeModel()
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export class HomeController {
     //instance members
-    view = null;
     model = null;
+    view = null;
 
     constructor() {
-        this.model = glHomeModel;
-        this.onClickGenerateDataButton = this.onClickGenerateDataButton.bind(this);
+        this.model = glHomeModel
+        this.onClickNewGameButton = this.onClickNewGameButton.bind(this);
+        this.onChangeGameStrategy = this.onChangeGameStrategy.bind(this)
     }
 
     setView(view) {
         this.view = view;
     }
 
-    onClickGenerateDataButton() {
-        // generate a random number between 1 and 100
-        const randomNum = Math.floor(Math.random() * 100) + 1;
-        this.model.addNumber(randomNum);
+    onClickNewGameButton(e) {
+        this.model.newGame();
+        this.view.render();
+    }
+    async onClickBoardImage(index) {
+        this.model.move(index);
+        this.model.winner = this.model.getGameResult();
+        if (this.model.winner != null) {
+            this.gameOver();
+        } else {
+            this.model.changeTurn();
+            this.model.progressMessage = `Click on the board to move.<br> (# of moves: ${this.model.moves})`;
+        }
+        this.view.render()
+
+        // if vs Random, computer makes a move
+        if (this.model.winner == null && this.model.playStrategy == GamePlayStrategy.VS_RANDOM) {
+            const pos = this.model.computerMove();
+            startSpinner()
+            //await new Promise(r => setTimeout(r, 0));
+            await sleep(1000)
+            stopSpinner();
+            
+            this.model.move(pos);
+
+            // check the game result again
+            this.model.winner = this.model.getGameResult();
+            if (this.model.winner != null) {
+                this.gameOver();
+            } else {
+                this.model.changeTurn();
+                this.model.progressMessage =
+                    `Click on the board to move.<br> (# of moves: ${this.model.moves})`;
+
+            }
+        }
+        await sleep(1000)
         this.view.render();
     }
 
+    gameOver() {
+        this.model.gameState = GameState.DONE;
+        this.model.progressMessage = this.model.winner != marking.U ?
+            `Game Over: ${this.model.winner} wins!` :
+            `Game Over: It's a draw!`;
+    }
+
+    onChangeGameStrategy(e) {
+        this.model.playStrategy = e.target.value
+    }
 
 }
